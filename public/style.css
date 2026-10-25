@@ -4243,24 +4243,96 @@ body.dark-mode .sudoku-cell.cell-leader-val {
   color: #60a5fa;
 }
 
+/* Resaltado de líneas horizontal y vertical que cubren la celda activa */
+.sudoku-cell.cell-line-h,
+.sudoku-cell.cell-line-v {
+  background-color: #e0f2fe;
+}
+
+body.dark-mode .sudoku-cell.cell-line-h,
+body.dark-mode .sudoku-cell.cell-line-v {
+  background-color: rgba(56, 189, 248, 0.14);
+}
+
+.sudoku-cell.cell-line-h.cell-line-v {
+  background-color: #bae6fd;
+}
+
+body.dark-mode .sudoku-cell.cell-line-h.cell-line-v {
+  background-color: rgba(56, 189, 248, 0.22);
+}
+
 .sudoku-cell.cell-peer {
-  background-color: #f8fafc;
+  background-color: #f0f9ff;
 }
 
 body.dark-mode .sudoku-cell.cell-peer {
-  background-color: #172033;
+  background-color: rgba(56, 189, 248, 0.08);
 }
 
+/* Resaltado de líneas horizontales y verticales que cubren el número indicado (cross-hatching) */
+.sudoku-cell.cell-covered-row,
+.sudoku-cell.cell-covered-col {
+  background-color: #fef9c3;
+}
+
+body.dark-mode .sudoku-cell.cell-covered-row,
+body.dark-mode .sudoku-cell.cell-covered-col {
+  background-color: rgba(245, 158, 11, 0.11);
+}
+
+.sudoku-cell.cell-covered-row.cell-covered-col {
+  background-color: #fef08a;
+}
+
+body.dark-mode .sudoku-cell.cell-covered-row.cell-covered-col {
+  background-color: rgba(245, 158, 11, 0.18);
+}
+
+/* Resaltado de todos los números iguales al indicado */
+.sudoku-cell.cell-same-number {
+  background-color: #fde047 !important;
+  color: #854d0e !important;
+  font-weight: 900 !important;
+  box-shadow: inset 0 0 0 2px #eab308, 0 0 10px rgba(234, 179, 8, 0.5) !important;
+  transform: scale(1.02);
+  z-index: 3;
+}
+
+body.dark-mode .sudoku-cell.cell-same-number {
+  background-color: #78350f !important;
+  color: #fef08a !important;
+  box-shadow: inset 0 0 0 2px #facc15, 0 0 12px rgba(250, 204, 21, 0.6) !important;
+}
+
+/* Celda seleccionada (foco principal) */
 .sudoku-cell.cell-selected {
-  background-color: #dbeafe !important;
-  outline: 2.5px solid #2563eb;
+  background-color: #bfdbfe !important;
+  outline: 3px solid #2563eb !important;
   outline-offset: -2px;
-  z-index: 5;
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.5);
+  z-index: 6;
 }
 
 body.dark-mode .sudoku-cell.cell-selected {
-  background-color: #1e3a8a !important;
-  outline-color: #60a5fa;
+  background-color: #1e40af !important;
+  outline-color: #60a5fa !important;
+  box-shadow: 0 0 14px rgba(96, 165, 250, 0.6);
+}
+
+/* Si la celda seleccionada además tiene el número marcado */
+.sudoku-cell.cell-same-number.cell-selected {
+  background-color: #fde047 !important;
+  outline: 3.5px solid #2563eb !important;
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 2px #ca8a04, 0 0 16px rgba(37, 99, 235, 0.7) !important;
+  transform: scale(1.04);
+  z-index: 7;
+}
+
+body.dark-mode .sudoku-cell.cell-same-number.cell-selected {
+  background-color: #78350f !important;
+  outline-color: #60a5fa !important;
 }
 
 .sudoku-cell.cell-error {
@@ -4310,6 +4382,20 @@ body.dark-mode .sudoku-cell.cell-error {
 body.dark-mode .cell-note-item.has-suggestion {
   color: #38bdf8;
   background: rgba(56, 189, 248, 0.2);
+}
+
+.cell-note-item.note-matches-active {
+  background: #f59e0b !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  border-radius: 3px;
+  transform: scale(1.18);
+  box-shadow: 0 0 5px rgba(245, 158, 11, 0.85);
+}
+
+body.dark-mode .cell-note-item.note-matches-active {
+  background: #facc15 !important;
+  color: #0f172a !important;
 }
 
 /* Panel de Teclado Numérico y Sugerencias */
@@ -4394,6 +4480,22 @@ body.dark-mode .skp-btn:hover {
 
 .skp-btn:active {
   transform: scale(0.95);
+}
+
+.skp-btn.skp-btn-active {
+  background: #fde047 !important;
+  border-color: #ca8a04 !important;
+  color: #713f12 !important;
+  transform: translateY(-2px) scale(1.08);
+  box-shadow: 0 4px 12px rgba(234, 179, 8, 0.5);
+  z-index: 2;
+}
+
+body.dark-mode .skp-btn.skp-btn-active {
+  background: #78350f !important;
+  border-color: #facc15 !important;
+  color: #fef08a !important;
+  box-shadow: 0 4px 14px rgba(250, 204, 21, 0.55);
 }
 
 .skp-btn-clear {
