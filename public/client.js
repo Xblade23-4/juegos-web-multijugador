@@ -3334,10 +3334,11 @@ function setupSudokuEventListeners() {
 }
 
 function handleSudokuDigitInput(num) {
-  highlightedSudokuNumber = num;
   if (!currentRoomState || !currentRoomState.sudoku) return;
 
+  // Si no hay celda seleccionada, el keypad numérico resalta/desmarca ese número en todo el tablero
   if (selectedSudokuCellIndex === null) {
+    highlightedSudokuNumber = highlightedSudokuNumber === num ? null : num;
     playTone(520, 0.05, 'sine');
     renderSudokuGame(currentRoomState);
     return;
@@ -3351,23 +3352,27 @@ function handleSudokuDigitInput(num) {
   }
 
   if (cell.given) {
-    // Si la celda es una pista fija, pulsar un número en el keypad sirve para resaltar todos los de ese número
+    // Si la celda es una pista fija, pulsar un número en el keypad resalta/desmarca ese número
+    highlightedSudokuNumber = highlightedSudokuNumber === num ? null : num;
     playTone(520, 0.05, 'sine');
     renderSudokuGame(currentRoomState);
     return;
   }
 
   if (isHost) {
+    highlightedSudokuNumber = num;
     playTone(660, 0.08, 'triangle');
     socket.emit('sudoku_set_cell', { index: selectedSudokuCellIndex, value: num }, (res) => {
       if (res && !res.ok) showToast(res.error);
     });
   } else {
     if (cell.value > 0) {
-      showToast('Esta casilla ya tiene un número definitivo puesto por el líder.');
+      highlightedSudokuNumber = highlightedSudokuNumber === num ? null : num;
+      playTone(520, 0.05, 'sine');
       renderSudokuGame(currentRoomState);
       return;
     }
+    highlightedSudokuNumber = num;
     playTone(520, 0.06, 'sine');
     socket.emit('sudoku_toggle_suggestion', { index: selectedSudokuCellIndex, number: num });
   }
@@ -3449,23 +3454,11 @@ function renderSudokuGame(state) {
   const selCol = selCell ? selCell.col : -1;
   const selBox = selCell ? selCell.box : -1;
 
-  // Si la celda seleccionada tiene un número, se marca automáticamente ese número
-  if (selCell && selCell.value > 0) {
+  // Si la celda seleccionada tiene un número y no hay número resaltado, se marca ese número
+  if (selCell && selCell.value > 0 && highlightedSudokuNumber === null) {
     highlightedSudokuNumber = selCell.value;
   }
   const activeNum = highlightedSudokuNumber;
-
-  // Identificar todas las líneas horizontales y verticales cubiertas por el número marcado (cross-hatching)
-  const coveredRows = new Set();
-  const coveredCols = new Set();
-  if (activeNum) {
-    su.grid.forEach((c) => {
-      if (c.value === activeNum) {
-        coveredRows.add(c.row);
-        coveredCols.add(c.col);
-      }
-    });
-  }
 
   su.grid.forEach((cell, idx) => {
     const cellEl = document.createElement('div');
@@ -3478,21 +3471,13 @@ function renderSudokuGame(state) {
     const isSameRow = selCell && cell.row === selRow;
     const isSameCol = selCell && cell.col === selCol;
     const isSameBox = selCell && cell.box === selBox;
-    const isPeer = isSameRow || isSameCol || isSameBox;
     const isSameNumber = activeNum && cell.value === activeNum;
-    const isCoveredRow = activeNum && coveredRows.has(cell.row);
-    const isCoveredCol = activeNum && coveredCols.has(cell.col);
     const hasError = su.errors && su.errors.includes(idx);
 
-    // Resaltado de líneas horizontal y vertical que cubren la celda activa
+    // Guía horizontal y vertical nítida que cubre la casilla seleccionada
     if (isSameRow) cellEl.classList.add('cell-line-h');
     if (isSameCol) cellEl.classList.add('cell-line-v');
-    if (isPeer) cellEl.classList.add('cell-peer');
-
-    // Resaltado de líneas horizontales y verticales que cubren el número indicado
-    if (isCoveredRow) cellEl.classList.add('cell-covered-row');
-    if (isCoveredCol) cellEl.classList.add('cell-covered-col');
-    if (isCoveredRow || isCoveredCol) cellEl.classList.add('cell-covered-line');
+    if (isSameBox && !isSameRow && !isSameCol) cellEl.classList.add('cell-peer-box');
 
     // Resaltado de todos los números iguales al indicado
     if (isSameNumber) {
@@ -3539,9 +3524,13 @@ function renderSudokuGame(state) {
     }
 
     cellEl.addEventListener('click', () => {
-      if (selectedSudokuCellIndex === idx && cell.value > 0 && highlightedSudokuNumber === cell.value) {
-        // Al tocar de nuevo la misma celda con número, alternar/desmarcar
-        highlightedSudokuNumber = null;
+      if (selectedSudokuCellIndex === idx) {
+        if (cell.value > 0 && highlightedSudokuNumber === cell.value) {
+          // Si tocas la misma celda con número activo, alternar/desmarcar
+          highlightedSudokuNumber = null;
+        } else if (cell.value > 0) {
+          highlightedSudokuNumber = cell.value;
+        }
       } else {
         selectedSudokuCellIndex = idx;
         if (cell.value > 0) {
