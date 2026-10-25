@@ -1212,6 +1212,7 @@ function bindUIEvents() {
       setTimeout(() => window.SantiagoMapAnimation.resize(), 60);
     }
   }
+  window.setMobileActiveTab = setMobileActiveTab;
 
   mobileTabBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -2307,6 +2308,9 @@ function renderMinigameStage(minigame) {
 socket.on('cual_es_point', ({ playerId, playerName, symbol }) => {
   if (playerId === myPlayerId) {
     playSoundEffect('buy');
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      try { navigator.vibrate([25, 35, 25]); } catch (_) {}
+    }
   } else {
     playTone(480, 0.1, 'sine');
   }
@@ -2369,6 +2373,9 @@ socket.on('cual_es_penalty', ({ playerId, penaltyUntil, symbol }) => {
   if (playerId === myPlayerId) {
     playTone(170, 0.22, 'sawtooth');
     setTimeout(() => playTone(140, 0.28, 'sawtooth'), 140);
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      try { navigator.vibrate(140); } catch (_) {}
+    }
     startMyPenaltyCountdown(penaltyUntil);
     showToast(`❄️ ¡"${symbol?.icon || ''} ${symbol?.name || ''}" no coincide! 3s de penalización.`);
   }
@@ -2702,6 +2709,17 @@ function renderGame(state) {
   santiagoPortfolioEl.classList.toggle('hidden', isCualEs || isSudoku);
   cualesRulesEl.classList.toggle('hidden', !isCualEs);
   if (logPanelBox) logPanelBox.classList.toggle('hidden', isCualEs);
+
+  // Ocultar pestaña de Escrituras en móvil para juegos de cartas y Sudoku
+  const mobilePropsTabBtn = document.querySelector('.mobile-tab-btn[data-tab="props"]');
+  if (mobilePropsTabBtn) {
+    mobilePropsTabBtn.classList.toggle('hidden', isCualEs || isSudoku);
+  }
+  if ((isCualEs || isSudoku) && mainGameLayoutEl && mainGameLayoutEl.dataset.activeTab === 'props') {
+    if (typeof window.setMobileActiveTab === 'function') {
+      window.setMobileActiveTab('board');
+    }
+  }
 
   if (returnLobbyBtn) {
     returnLobbyBtn.classList.toggle('hidden', !isHost && state.status !== 'finished');
